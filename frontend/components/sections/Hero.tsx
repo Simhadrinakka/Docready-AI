@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
@@ -75,13 +76,15 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="mt-10 flex flex-col sm:flex-row justify-center lg:justify-start gap-4"
             >
-              <Button
-                size="lg"
-                className="bg-blue-600 text-white hover:bg-blue-700 font-semibold px-8 py-6 text-base rounded-full shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 group cursor-pointer"
-              >
-                Analyze Documents
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Button>
+              <Link href="/dashboard" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="bg-blue-600 text-white hover:bg-blue-700 font-semibold px-8 py-6 text-base rounded-full shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 group cursor-pointer w-full"
+                >
+                  Analyze Documents
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 size="lg"
