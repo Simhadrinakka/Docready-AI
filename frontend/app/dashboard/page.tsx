@@ -8,8 +8,9 @@ import DocumentChecklist from "@/components/dashboard/DocumentChecklist";
 import UploadArea from "@/components/dashboard/UploadArea";
 import RecentAnalyses from "@/components/dashboard/RecentAnalyses";
 import { Button } from "@/components/ui/button";
-import { Cpu, Sparkles, CheckCircle2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { Cpu, Sparkles, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface UploadedFile {
   name: string;
@@ -19,6 +20,12 @@ interface UploadedFile {
   rawFile?: File;
 }
 
+interface Toast {
+  message: string;
+  type: "success" | "error";
+  id: number;
+}
+
 export default function Dashboard() {
   const [currentTab, setCurrentTab] = useState("dashboard");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -26,13 +33,53 @@ export default function Dashboard() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(false);
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const startAnalysis = () => {
-    setIsAnalyzing(true);
+  const showToast = (message: string, type: "success" | "error") => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 5000);
+  };
+
+  const startAnalysis = async () => {
+    if (files.length === 0) return;
+
+    setIsAnalyzing(true);
+    setAnalysisResult(false);
+
+    try {
+      const formData = new FormData();
+      files.forEach((file) => {
+        if (file.rawFile) {
+          formData.append("files", file.rawFile);
+        }
+      });
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+      const response = await fetch(`${apiUrl}/api/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        showToast(`Uploaded ${data.total_files} files successfully. Ready for OCR analysis.`, "success");
+      } else {
+        throw new Error("API response indicated failure.");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      showToast(error instanceof Error ? error.message : "Failed to upload files. Please try again.", "error");
+    } finally {
       setIsAnalyzing(false);
-      setAnalysisResult(true);
-    }, 2500);
+    }
   };
 
   return (
@@ -144,6 +191,39 @@ export default function Dashboard() {
           {/* Historical / Recent Analyses Table */}
           <RecentAnalyses />
         </main>
+      </div>
+
+      {/* Toast Notifications */}
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+        <AnimatePresence>
+          {toasts.map((toast) => (
+            <motion.div
+              key={toast.id}
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.2 } }}
+              className={cn(
+                "p-4 rounded-xl shadow-lg border flex items-start gap-3 backdrop-blur-md pointer-events-auto",
+                toast.type === "success"
+                  ? "bg-emerald-50/90 border-emerald-200 text-emerald-800 dark:bg-emerald-950/90 dark:border-emerald-900 dark:text-emerald-300"
+                  : "bg-red-50/90 border-red-200 text-red-800 dark:bg-red-950/90 dark:border-red-900 dark:text-red-300"
+              )}
+            >
+              {toast.type === "success" ? (
+                <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+              )}
+              <span className="text-xs font-semibold flex-grow leading-tight">{toast.message}</span>
+              <button
+                onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shrink-0 ml-1"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );
