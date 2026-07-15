@@ -17,43 +17,45 @@ interface UploadedFile {
   size: string;
   type: string;
   progress: number;
+  rawFile?: File;
 }
 
 interface DocumentChecklistProps {
   files: UploadedFile[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function DocumentChecklist({ files }: DocumentChecklistProps) {
   const defaultItems: ChecklistItem[] = [
     {
       id: "aadhaar",
       name: "Aadhaar Card",
       requirement: "Clear scan showing full 12-digit number, name matches spelling exactly.",
-      status: files.some(f => f.name.toLowerCase().includes("aadhaar")) ? "ready" : "pending",
+      status: "pending",
     },
     {
       id: "income",
       name: "Income Certificate",
       requirement: "Issued by competent authority, must be valid for the current fiscal year.",
-      status: files.some(f => f.name.toLowerCase().includes("income")) ? "ready" : "pending",
+      status: "pending",
     },
     {
       id: "bonafide",
       name: "Bonafide Certificate",
       requirement: "Original copy printed on college letterhead, signed by Principal/Director.",
-      status: files.some(f => f.name.toLowerCase().includes("bonafide")) ? "ready" : "pending",
+      status: "pending",
     },
     {
       id: "passbook",
       name: "Bank Passbook",
       requirement: "Scan of first page showing account number, IFSC code, and holder name.",
-      status: files.some(f => f.name.toLowerCase().includes("passbook") || f.name.toLowerCase().includes("bank")) ? "ready" : "pending",
+      status: "pending",
     },
     {
       id: "photo",
       name: "Passport-size Photo",
       requirement: "Recent color photo against a light/white background. Format must be JPG.",
-      status: files.some(f => f.name.toLowerCase().includes("photo") || f.name.toLowerCase().includes("pic")) ? "ready" : "pending",
+      status: "pending",
     },
   ];
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { UploadCloud, FileText, CheckCircle2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,7 @@ interface UploadedFile {
   size: string;
   type: string;
   progress: number;
+  rawFile?: File;
 }
 
 interface UploadAreaProps {
@@ -16,8 +17,60 @@ interface UploadAreaProps {
   setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>;
 }
 
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+};
+
 export default function UploadArea({ files, setFiles }: UploadAreaProps) {
   const [isDragActive, setIsDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const validateAndAddFiles = (fileList: FileList) => {
+    const validFiles: UploadedFile[] = [];
+    const maxSizeBytes = 10 * 1024 * 1024; // 10 MB
+    const allowedExtensions = [".pdf", ".jpg", ".jpeg", ".png"];
+    const allowedMimeTypes = ["application/pdf", "image/jpeg", "image/png"];
+
+    for (let i = 0; i < fileList.length; i++) {
+      const file = fileList[i];
+
+      // Validate file size
+      if (file.size > maxSizeBytes) {
+        alert(`File "${file.name}" exceeds the 10 MB limit.`);
+        continue;
+      }
+
+      // Validate file type
+      const extension = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+      const isValidType = allowedExtensions.includes(extension) || allowedMimeTypes.includes(file.type);
+
+      if (!isValidType) {
+        alert(`File "${file.name}" has an unsupported format. Supported formats: PDF, JPG, PNG.`);
+        continue;
+      }
+
+      // Check if file already exists in the uploaded files list by name
+      if (files.some(f => f.name === file.name)) {
+        continue;
+      }
+
+      validFiles.push({
+        name: file.name,
+        size: formatFileSize(file.size),
+        type: file.type,
+        progress: 100,
+        rawFile: file,
+      });
+    }
+
+    if (validFiles.length > 0) {
+      setFiles((prevFiles) => [...prevFiles, ...validFiles]);
+    }
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -32,42 +85,22 @@ export default function UploadArea({ files, setFiles }: UploadAreaProps) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragActive(false);
-    
-    const presetNames = [
-      "Aadhaar_Card.pdf",
-      "Income_Certificate.pdf",
-      "Bonafide_Certificate.pdf",
-      "Bank_Passbook.png",
-      "Passport_Photo.jpg"
-    ];
-    const nextName = presetNames.find(name => !files.some(f => f.name === name)) || `Document_${files.length + 1}.pdf`;
 
-    const newFile = {
-      name: nextName,
-      size: "2.4 MB",
-      type: "application/pdf",
-      progress: 100,
-    };
-    setFiles([...files, newFile]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      validateAndAddFiles(e.dataTransfer.files);
+    }
   };
 
   const handleBrowse = () => {
-    const presetNames = [
-      "Aadhaar_Card.pdf",
-      "Income_Certificate.pdf",
-      "Bonafide_Certificate.pdf",
-      "Bank_Passbook.png",
-      "Passport_Photo.jpg"
-    ];
-    const nextName = presetNames.find(name => !files.some(f => f.name === name)) || `Document_${files.length + 1}.pdf`;
-    
-    const newFile = {
-      name: nextName,
-      size: "1.8 MB",
-      type: "application/pdf",
-      progress: 100,
-    };
-    setFiles([...files, newFile]);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      validateAndAddFiles(e.target.files);
+    }
+    // Reset file input value so the same file can be uploaded again if deleted
+    e.target.value = "";
   };
 
   const removeFile = (index: number) => {
@@ -76,6 +109,14 @@ export default function UploadArea({ files, setFiles }: UploadAreaProps) {
 
   return (
     <div className="space-y-6">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        multiple
+        accept=".pdf,.jpg,.jpeg,.png,image/jpeg,image/png,application/pdf"
+        className="hidden"
+      />
       {/* Drag & Drop Area */}
       <div
         onDragOver={handleDragOver}

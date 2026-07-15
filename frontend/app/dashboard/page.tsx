@@ -16,6 +16,7 @@ interface UploadedFile {
   size: string;
   type: string;
   progress: number;
+  rawFile?: File;
 }
 
 export default function Dashboard() {
