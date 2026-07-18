@@ -6,6 +6,7 @@ frontend/.next/
 backend/venv/
 backend/__pycache__/
 backend/*.pyc
+backend/app/uploads/
 
 # OS
 .DS_Store
