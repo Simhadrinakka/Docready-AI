@@ -6,3 +6,8 @@ opencv-python
 rapidfuzz
 google-generativeai
 python-dotenv
+Pillow
+PyMuPDF
+numpy
+torch
+torchvision
