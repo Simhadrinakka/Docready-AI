@@ -125,18 +125,6 @@ npm run dev
 
 ---
 
-## 🌐 Live Demo
-
-Frontend:
-
-*(Add Vercel URL)*
-
-Backend API:
-
-*(Add Railway URL)*
-
----
-
 ## 👨‍💻 Team
 
 Built for the **NxtWave Hackathon**.
