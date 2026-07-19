@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +13,19 @@ import {
   FileText,
   CheckCircle2,
   Sparkles,
+  X,
 } from "lucide-react";
 
 export default function Hero() {
+  const [isDemoOpen, setIsDemoOpen] = useState(false);
+
+  useEffect(() => {
+    const openDemo = () => setIsDemoOpen(true);
+    window.addEventListener("open-docready-demo", openDemo);
+
+    return () => window.removeEventListener("open-docready-demo", openDemo);
+  }, []);
+
   return (
     <section
       id="home"
@@ -88,6 +98,7 @@ export default function Hero() {
               <Button
                 variant="outline"
                 size="lg"
+                onClick={() => setIsDemoOpen(true)}
                 className="border-slate-300 hover:bg-slate-50 font-semibold px-8 py-6 text-base rounded-full text-slate-700 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Play className="h-4 w-4 fill-current text-slate-700 dark:text-slate-300" />
@@ -260,6 +271,44 @@ export default function Hero() {
           </div>
         </div>
       </div>
+
+      {isDemoOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="demo-video-title"
+          onClick={() => setIsDemoOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
+              <h2 id="demo-video-title" className="text-base font-bold text-slate-900 dark:text-white">
+                Docready-AI Demo
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsDemoOpen(false)}
+                className="rounded-md p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
+                aria-label="Close demo video"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="aspect-video bg-slate-950">
+              <video
+                className="h-full w-full"
+                src="/docready-demo.mp4"
+                controls
+                autoPlay
+                playsInline
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

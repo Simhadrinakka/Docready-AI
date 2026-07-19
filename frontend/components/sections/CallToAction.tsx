@@ -50,6 +50,7 @@ export default function CallToAction() {
               <Button
                 variant="outline"
                 size="lg"
+                onClick={() => window.dispatchEvent(new Event("open-docready-demo"))}
                 className="border-white/30 text-white hover:bg-white/10 font-bold px-8 py-6 rounded-full flex items-center justify-center gap-2 cursor-pointer"
               >
                 View Demo

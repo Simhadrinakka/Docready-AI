@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes.upload import router as upload_router
+print("MAIN.PY LOADED")
 
 app = FastAPI(
     title="Docready-AI API",
