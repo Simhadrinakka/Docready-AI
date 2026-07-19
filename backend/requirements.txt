@@ -2,7 +2,7 @@ fastapi
 uvicorn
 python-multipart
 easyocr
-opencv-python
+opencv-python-headless
 rapidfuzz
 google-generativeai
 python-dotenv
