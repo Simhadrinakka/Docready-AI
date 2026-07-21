@@ -5,7 +5,7 @@ import json
 from app.utils.file_utils import save_uploaded_file
 from app.services.document_classifier import classify_document
 from app.services.field_extractor import extract_fields
-from app.services.gemini_service import extract_document_details
+# from app.services.gemini_service import extract_document_details
 from app.services.validator import validate_document
 from app.services.readiness_score import calculate_readiness_score
 from app.services.recommendation_service import generate_recommendations
@@ -111,16 +111,9 @@ async def upload_files(
 
 
         if USE_GEMINI:
-            try:
-                ai_fields = extract_document_details(text)
-                print("\n===== GEMINI OUTPUT =====")
-                print(ai_fields)
-                print("=========================\n")
-            except Exception as e:
-                print("Gemini Error:", e)
-                ai_fields = {}
-        else:
-            ai_fields = {}
+            pass
+        
+        ai_fields = {}
 
         fields = extract_fields(document_type, text)
         issues = validate_document(document_type, fields)
