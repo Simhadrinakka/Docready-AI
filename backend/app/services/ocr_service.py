@@ -28,7 +28,9 @@ def extract_text(file_path: str):
 
             print("OCR: Before readtext")
 
-            result = reader.readtext(np.array(img), detail=0)
+            print("Skipping OCR")
+            result = ["TEST OCR"]
+            print("After fake OCR")
 
             print("OCR: After readtext")
 
@@ -49,11 +51,9 @@ def extract_text(file_path: str):
 
         print("OCR: Before readtext")
 
-        result = reader.readtext(
-            np.array(img),
-            detail=0,
-            rotation_info=[90, 180, 270]
-        )
+        print("Skipping OCR")
+        result = ["TEST OCR"]
+        print("After fake OCR")
 
         print("OCR: After readtext")
 
